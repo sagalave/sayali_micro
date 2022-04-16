@@ -37,7 +37,8 @@ int main(int argc, char **argv) {
 
   // 3: get my port
   int my_port = config_json["order-beverage-service"]["port"];
-
+  
+  
   // 4: get the weather service's port and address
   int weather_service_port = config_json["weather-service"]["port"];
   std::string weather_service_addr = config_json["weather-service"]["addr"];
@@ -46,11 +47,23 @@ int main(int argc, char **argv) {
   ClientPool<ThriftClient<WeatherServiceClient>> weather_client_pool(
       "weather-service", weather_service_addr, weather_service_port, 0, 128, 1000);
 
+// get the Beverage preference service's port and address
+   int beveragePreference_service_port = config_json["beverage-preference-service"]["port"];
+   std::string beveragePreference_service_addr = config_json["beverage-preference-service"]["addr"];
+
+// get the client of BeveragePreference service
+ ClientPool<ThriftClient<BeveragePreferenceServiceClient>>
+ beveragePreference_client_pool(
+             "beverage-preference-service", beveragePreference_service_addr,
+beveragePreference_service_port, 0, 128, 1000);
+
+  
+
   // 6: configure this server
   TThreadedServer server(
       std::make_shared<OrderBeverageServiceProcessor>(
           std::make_shared<OrderBeverageServiceHandler>(
-              &weather_client_pool)),
+              &weather_client_pool,&beveragePreference_client_pool)),
       std::make_shared<TServerSocket>("0.0.0.0", my_port),
       std::make_shared<TFramedTransportFactory>(),
       std::make_shared<TBinaryProtocolFactory>()

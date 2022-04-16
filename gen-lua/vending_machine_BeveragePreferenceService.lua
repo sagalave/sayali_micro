@@ -5,42 +5,29 @@
 -- @generated
 --
 
-local vending_machine_ttype = require 'vending_machine_ttypes'
 
-local Thrift = require 'Thrift'
-local TType = Thrift.TType
-local TMessageType = Thrift.TMessageType
-local __TObject = Thrift.__TObject
-local TApplicationException = Thrift.TApplicationException
-local __TClient = Thrift.__TClient
-local __TProcessor = Thrift.__TProcessor
-local ttype = Thrift.ttype
-local ttable_size = Thrift.ttable_size
-local TException = Thrift.TException
+require 'Thrift'
+require 'vending_machine_ttypes'
 
-local OrderBeverageServiceClient = __TObject.new(__TClient, {
-  __type = 'OrderBeverageServiceClient'
+BeveragePreferenceServiceClient = __TObject.new(__TClient, {
+  __type = 'BeveragePreferenceServiceClient'
 })
 
-local PlaceOrder_args = __TObject:new{
-	  city
-}
-
-function OrderBeverageServiceClient:PlaceOrder(city)
-  self:send_PlaceOrder(city)
-  return self:recv_PlaceOrder(city)
+function BeveragePreferenceServiceClient:getBeverage(btype)
+  self:send_getBeverage(btype)
+  return self:recv_getBeverage(btype)
 end
 
-function OrderBeverageServiceClient:send_PlaceOrder(city)
-  self.oprot:writeMessageBegin('PlaceOrder', TMessageType.CALL, self._seqid)
-  local args = PlaceOrder_args:new{}
-  args.city = city
+function BeveragePreferenceServiceClient:send_getBeverage(btype)
+  self.oprot:writeMessageBegin('getBeverage', TMessageType.CALL, self._seqid)
+  local args = getBeverage_args:new{}
+  args.btype = btype
   args:write(self.oprot)
   self.oprot:writeMessageEnd()
   self.oprot.trans:flush()
 end
 
-function OrderBeverageServiceClient:recv_PlaceOrder(city)
+function BeveragePreferenceServiceClient:recv_getBeverage(btype)
   local fname, mtype, rseqid = self.iprot:readMessageBegin()
   if mtype == TMessageType.EXCEPTION then
     local x = TApplicationException:new{}
@@ -48,28 +35,25 @@ function OrderBeverageServiceClient:recv_PlaceOrder(city)
     self.iprot:readMessageEnd()
     error(x)
   end
-  local result = PlaceOrder_result:new{}
+  local result = getBeverage_result:new{}
   result:read(self.iprot)
   self.iprot:readMessageEnd()
   if result.success ~= nil then
     return result.success
-  elseif result.se then
-    error(result.se)
   end
   error(TApplicationException:new{errorCode = TApplicationException.MISSING_RESULT})
 end
-
-local OrderBeverageServiceIface = __TObject:new{
-  __type = 'OrderBeverageServiceIface'
+BeveragePreferenceServiceIface = __TObject:new{
+  __type = 'BeveragePreferenceServiceIface'
 }
 
 
-local OrderBeverageServiceProcessor = __TObject.new(__TProcessor
+BeveragePreferenceServiceProcessor = __TObject.new(__TProcessor
 , {
- __type = 'OrderBeverageServiceProcessor'
+ __type = 'BeveragePreferenceServiceProcessor'
 })
 
-function OrderBeverageServiceProcessor:process(iprot, oprot, server_ctx)
+function BeveragePreferenceServiceProcessor:process(iprot, oprot, server_ctx)
   local name, mtype, seqid = iprot:readMessageBegin()
   local func_name = 'process_' .. name
   if not self[func_name] or ttype(self[func_name]) ~= 'function' then
@@ -90,22 +74,20 @@ function OrderBeverageServiceProcessor:process(iprot, oprot, server_ctx)
   end
 end
 
-function OrderBeverageServiceProcessor:process_PlaceOrder(seqid, iprot, oprot, server_ctx)
-  local args = PlaceOrder_args:new{}
+function BeveragePreferenceServiceProcessor:process_getBeverage(seqid, iprot, oprot, server_ctx)
+  local args = getBeverage_args:new{}
   local reply_type = TMessageType.REPLY
   args:read(iprot)
   iprot:readMessageEnd()
-  local result = PlaceOrder_result:new{}
-  local status, res = pcall(self.handler.PlaceOrder, self.handler, args.city)
+  local result = getBeverage_result:new{}
+  local status, res = pcall(self.handler.getBeverage, self.handler, args.btype)
   if not status then
     reply_type = TMessageType.EXCEPTION
     result = TApplicationException:new{message = res}
-  elseif ttype(res) == 'ServiceException' then
-    result.se = res
   else
     result.success = res
   end
-  oprot:writeMessageBegin('PlaceOrder', reply_type, seqid)
+  oprot:writeMessageBegin('getBeverage', reply_type, seqid)
   result:write(oprot)
   oprot:writeMessageEnd()
   oprot.trans:flush()
@@ -114,20 +96,19 @@ end
 
 -- HELPER FUNCTIONS AND STRUCTURES
 
---local PlaceOrder_args = __TObject:new{
---  city
---}
+getBeverage_args = __TObject:new{
+  btype
+}
 
-
-function PlaceOrder_args:read(iprot)
+function getBeverage_args:read(iprot)
   iprot:readStructBegin()
   while true do
     local fname, ftype, fid = iprot:readFieldBegin()
     if ftype == TType.STOP then
       break
     elseif fid == 1 then
-      if ftype == TType.I64 then
-        self.city = iprot:readI64()
+      if ftype == TType.I32 then
+        self.btype = iprot:readI32()
       else
         iprot:skip(ftype)
       end
@@ -139,23 +120,22 @@ function PlaceOrder_args:read(iprot)
   iprot:readStructEnd()
 end
 
-function PlaceOrder_args:write(oprot)
-  oprot:writeStructBegin('PlaceOrder_args')
-  if self.city ~= nil then
-    oprot:writeFieldBegin('city', TType.I64, 1)
-    oprot:writeI64(self.city)
+function getBeverage_args:write(oprot)
+  oprot:writeStructBegin('getBeverage_args')
+  if self.btype ~= nil then
+    oprot:writeFieldBegin('btype', TType.I32, 1)
+    oprot:writeI32(self.btype)
     oprot:writeFieldEnd()
   end
   oprot:writeFieldStop()
   oprot:writeStructEnd()
 end
 
-PlaceOrder_result = __TObject:new{
-  success,
-  se
+getBeverage_result = __TObject:new{
+  success
 }
 
-function PlaceOrder_result:read(iprot)
+function getBeverage_result:read(iprot)
   iprot:readStructBegin()
   while true do
     local fname, ftype, fid = iprot:readFieldBegin()
@@ -167,13 +147,6 @@ function PlaceOrder_result:read(iprot)
       else
         iprot:skip(ftype)
       end
-    elseif fid == 1 then
-      if ftype == TType.STRUCT then
-        self.se = ServiceException:new{}
-        self.se:read(iprot)
-      else
-        iprot:skip(ftype)
-      end
     else
       iprot:skip(ftype)
     end
@@ -182,20 +155,13 @@ function PlaceOrder_result:read(iprot)
   iprot:readStructEnd()
 end
 
-function PlaceOrder_result:write(oprot)
-  oprot:writeStructBegin('PlaceOrder_result')
+function getBeverage_result:write(oprot)
+  oprot:writeStructBegin('getBeverage_result')
   if self.success ~= nil then
     oprot:writeFieldBegin('success', TType.STRING, 0)
     oprot:writeString(self.success)
     oprot:writeFieldEnd()
   end
-  if self.se ~= nil then
-    oprot:writeFieldBegin('se', TType.STRUCT, 1)
-    self.se:write(oprot)
-    oprot:writeFieldEnd()
-  end
   oprot:writeFieldStop()
   oprot:writeStructEnd()
 end
-
-return OrderBeverageServiceClient
